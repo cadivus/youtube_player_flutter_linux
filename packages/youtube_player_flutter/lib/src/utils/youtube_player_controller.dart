@@ -6,11 +6,11 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import '../enums/playback_rate.dart';
 import '../enums/player_state.dart';
 import '../utils/youtube_meta_data.dart';
+import '../webview/webview_controller.dart';
 import '../widgets/progress_bar.dart';
 import 'youtube_player_flags.dart';
 
@@ -72,7 +72,7 @@ class YoutubePlayerValue {
   final int errorCode;
 
   /// Reports the [WebViewController].
-  final InAppWebViewController? webViewController;
+  final WebviewController? webViewController;
 
   /// Returns true is player has errors.
   bool get hasError => errorCode != 0;
@@ -102,7 +102,7 @@ class YoutubePlayerValue {
     double? playbackRate,
     String? playbackQuality,
     int? errorCode,
-    InAppWebViewController? webViewController,
+    WebviewController? webViewController,
     bool? isDragging,
     YoutubeMetaData? metaData,
   }) {

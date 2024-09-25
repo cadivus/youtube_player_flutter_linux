@@ -26,6 +26,21 @@
   var player;
   var timerId;
 
+  // Sends a message depending on the webview implementation
+  function callDartHandler(name, ...args) {
+    if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+      window.flutter_inappwebview.callHandler(name, ...args);
+      return;
+    }
+
+    try {
+      eval(name)(JSON.stringify(args));
+      return;
+    } catch (_) {
+      // Nothing here
+    }
+  }
+
   function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
       height: '100%',
@@ -61,19 +76,20 @@
       },
       events: {
         onReady: function (event) {
-          window.flutter_inappwebview.callHandler('Ready');
+          callDartHandler('Ready');
         },
         onStateChange: function (event) {
           sendPlayerStateChange(event.data);
         },
         onPlaybackQualityChange: function (event) {
-          window.flutter_inappwebview.callHandler('PlaybackQualityChange', event.data);
+          console.log(event.data);
+          callDartHandler('PlaybackQualityChange', event.data);
         },
         onPlaybackRateChange: function (event) {
-          window.flutter_inappwebview.callHandler('PlaybackRateChange', event.data);
+          callDartHandler('PlaybackRateChange', event.data);
         },
         onError: function (error) {
-          window.flutter_inappwebview.callHandler('Errors', error.data);
+          callDartHandler('Errors', error.data);
         }
       },
     });
@@ -81,7 +97,7 @@
 
   function sendPlayerStateChange(playerState) {
     clearTimeout(timerId);
-    window.flutter_inappwebview.callHandler('StateChange', playerState);
+    callDartHandler('StateChange', playerState);
     if (playerState == 1) {
       startSendCurrentTimeInterval();
       sendVideoData(player);
@@ -95,12 +111,12 @@
       'author': player.getVideoData().author,
       'videoId': player.getVideoData().video_id
     };
-    window.flutter_inappwebview.callHandler('VideoData', videoData);
+    callDartHandler('VideoData', videoData);
   }
 
   function startSendCurrentTimeInterval() {
     timerId = setInterval(function () {
-      window.flutter_inappwebview.callHandler('VideoTime', player.getCurrentTime(), player.getVideoLoadedFraction());
+      callDartHandler('VideoTime', player.getCurrentTime(), player.getVideoLoadedFraction());
     }, 100);
   }
 
