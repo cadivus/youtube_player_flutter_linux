@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:youtube_player_flutter/src/webview/webview.dart';
 
 import '../enums/player_state.dart';
 import '../utils/youtube_meta_data.dart';
@@ -82,28 +82,8 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
       ignoring: true,
       child: !_playerViewIsInited
           ? SizedBox.shrink()
-          : InAppWebView(
-              key: widget.key,
-              initialData: InAppWebViewInitialData(
-                data: YoutubePlayerView.renderPlayerView(controller!),
-                baseUrl: WebUri.uri(Uri.https('www.youtube.com')),
-                encoding: 'utf-8',
-                mimeType: 'text/html',
-              ),
-              initialSettings: InAppWebViewSettings(
-                userAgent: userAgent,
-                mediaPlaybackRequiresUserGesture: false,
-                transparentBackground: true,
-                disableContextMenu: true,
-                supportZoom: false,
-                disableHorizontalScroll: false,
-                disableVerticalScroll: false,
-                allowsInlineMediaPlayback: true,
-                allowsAirPlayForMediaPlayback: true,
-                allowsPictureInPictureMediaPlayback: true,
-                useWideViewPort: false,
-                useHybridComposition: controller!.flags.useHybridComposition,
-              ),
+          : Webview(
+              data: YoutubePlayerView.renderPlayerView(controller!),
               onWebViewCreated: (webController) {
                 controller!.updateValue(
                   controller!.value.copyWith(webViewController: webController),
@@ -228,7 +208,9 @@ class _RawYoutubePlayerState extends State<RawYoutubePlayer>
                     },
                   );
               },
-              onLoadStop: (_, __) {
+              userAgent: userAgent,
+              useHybridComposition: controller!.flags.useHybridComposition,
+              onLoaded: () {
                 _onLoadStopCalled = true;
                 if (_isPlayerReady) {
                   controller!.updateValue(
